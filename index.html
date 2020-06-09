@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Ultra Hühnergame</title>
+  <title>Ultra Hühnergame-Faniel Tedros</title>
 
   <!-- Add Vue to the Project -->
   <script src="https://unpkg.com/vue"></script>
@@ -55,6 +55,18 @@
               <b-button @click="improveChicken" variant="primary" class="mt-2" :disabled="score < chicken.improvmentprice">
                 {{ chicken.improvmentprice }}
               </b-button>
+            </b-col>
+          </b-row>
+        </b-layout>
+      </b-card>
+      <b-card style="max-width: 20rem;" header="Eier">
+        <b-layout fluid>
+          <b-row>
+            <b-col>
+              {{ score }} {{ score === 1n ? "Ei" : "Eier"}}
+            </b-col>
+            <b-col cols="4">
+              <b-button @click="addManual" variant="success">+ {{ buttonValue }}</b-button>
             </b-col>
           </b-row>
         </b-layout>
