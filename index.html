@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Ultra Hühnergame-Faniel Tedros</title>
+  <title>Slave Master</title>
 
   <!-- Add Vue to the Project -->
   <script src="https://unpkg.com/vue"></script>
@@ -24,59 +24,71 @@
 <body>
   <div id="app">
     <b-card-group deck>
-      <b-card style="max-width: 20rem;" header="Eier">
+      <b-card style="max-width: 20rem;" header="Money">
         <b-layout fluid>
           <b-row>
             <b-col>
-              {{ score }} {{ score === 1n ? "Ei" : "Eier"}}
+              {{ coins }} £ 
             </b-col>
             <b-col cols="4">
               <b-button @click="addManual" variant="primary">+ {{ buttonValue }}</b-button>
+              <b-button @click="addManual2" variant="primary">+ {{ buttonValue2 }}</b-button>
             </b-col>
           </b-row>
         </b-layout>
       </b-card>
-      <b-card v-if="chicken.allow" style="max-width: 20rem;" header="Hühner">
+      <b-card style="max-width: 20rem;" header="Slaves">
         <b-layout fluid>
           <b-row>
             <b-col>
-              <div>{{ chicken.count }} {{ chicken.count === 1 ? "Huhn" : "Hühner"}}</div>
+              <div>{{ slaves.count }} {{ slaves.count === 1 ? "Slave" : "Slaves"}}</div>
             </b-col>
             <b-col cols="4">
-              <b-button @click="buyChicken" variant="primary" :disabled="score < chicken.price">{{ chicken.price }}
-              </b-button>
-            </b-col>
-          </b-row>
-          <b-row v-if="chicken.allowImprovements">
-            <b-col>
-              Verbessere Hühner
-            </b-col>
-            <b-col cols="4">
-              <b-button @click="improveChicken" variant="primary" class="mt-2" :disabled="score < chicken.improvmentprice">
-                {{ chicken.improvmentprice }}
-              </b-button>
+              <b-button @click="buySlaves" variant="primary" :disabled="coins < slaves.price">{{ slaves.price }} £</b-button>
             </b-col>
           </b-row>
         </b-layout>
       </b-card>
-      <b-card style="max-width: 20rem;" header="Eier">
+      <b-card style="max-width: 20rem;" header="Butler">
         <b-layout fluid>
           <b-row>
             <b-col>
-              {{ score }} {{ score === 1n ? "Ei" : "Eier"}}
+              {{ butler.count }} {{ butler.count === 1n ? "Butler" : "Butlers"}}
             </b-col>
             <b-col cols="4">
-              <b-button @click="addManual" variant="success">+ {{ buttonValue }}</b-button>
+              <b-button  @click="buyButler" variant="primary" :disabled="slaves.count < butler.price" >{{ butler.price }} Sv</b-button>
+            </b-col>
+          </b-row>
+        </b-layout>
+      </b-card>
+      <b-card style="max-width: 20rem;" header="Headbutler">
+        <b-layout fluid>
+          <b-row>
+            <b-col>
+              {{ headbutler.count }} {{ headbutler.count === 1n ? "Headbutler" : "Headbutlers"}}
+            </b-col>
+            <b-col cols="4">
+              <b-button  @click="formHeadbutler" variant="primary" :disabled="villagers.count < headbutler.villagerPrice && coins < headbutler.coins" >{{ headbutler.villagerPrice }} V {{ headbutler.coins }} £</b-button>
+            </b-col>
+          </b-row>
+        </b-layout>
+      </b-card>
+      <b-card style="max-width: 20rem;" header="Villagers">
+        <b-layout fluid>
+          <b-row>
+            <b-col>
+              {{ villagers.count }} {{ villagers.count === 1n ? "Villager" : "Villagers"}}
+            </b-col>
+            <b-col cols="4">
+              <b-button  @click="buyButler" variant="primary" :disabled="slaves.count < butler.price" >{{ butler.price }} Sv</b-button>
             </b-col>
           </b-row>
         </b-layout>
       </b-card>
     </b-card-group>
-    <!-- DEBUG
       <pre>
         {{ $data }}
       </pre>
-    -->
   </div>
 
   <script>
@@ -84,15 +96,31 @@
       el: '#app',
       data: {
         message: 'Hello Vue!',
-        score: 0n,
+        coins: 0n,
         increment: 0.00,
         buttonValue: 1,
-        chicken: {
+        buttonValue2: 50,
+        butler:{
+          count: 0,
+          price: 5,
+          production: {
+            strength: 20,
+            stepsRequired: 1000,
+            stepsDone: 0
+          }
+        },
+        villagers:{
+          count: 100,
+          price: 5,
+        },
+        headbutler:{
+          count: 0,
+          coins: 2000,
+          villagerPrice: 1,
+        },
+        slaves: {
           count: 0,
           price: 100,
-          improvmentprice: 400,
-          allow: false,
-          allowImprovements: false,
           production: {
             strength: 1,
             stepsRequired: 1000,
@@ -108,37 +136,55 @@
       },
       methods: {
         update: function () {
-          this.chicken.production.stepsDone += this.chicken.count * this.chicken.production.strength
-          if (this.chicken.production.stepsDone >= this.chicken.production.stepsRequired) {
-            this.score += BigInt(this.chicken.production.strength)
-            this.chicken.production.stepsDone = 0
+          this.butler.production.stepsDone += this.butler.count * this.butler.production.strength
+          this.slaves.production.stepsDone += this.slaves.count * this.slaves.production.strength
+          if (this.slaves.production.stepsDone >= this.slaves.production.stepsRequired) {
+            this.coins += BigInt(this.slaves.production.strength) 
+            this.slaves.production.stepsDone = 0
+           
+          
+          
+          }
+          if (this.butler.production.stepsDone >= this.butler.production.stepsRequired){
+            this.coins += BigInt(this.butler.production.strength)
+              this.butler.production.stepsDone = 0
           }
         },
         addManual: function () {
-          this.score += BigInt(this.buttonValue)
-          if (this.score == BigInt(50)) {
-            this.chicken.allow = true
+          this.coins += BigInt(this.buttonValue)
+        },
+        addManual2: function () {
+          this.coins += BigInt(this.buttonValue2)
+        },
+        buyButler: function () {
+          if (this.slaves.count >= this.butler.price){
+            this.slaves.count -= this.butler.price
+            this.butler.count++
           }
         },
-        buyChicken: function () {
-          if (this.score >= this.chicken.price) {
-            this.score -= BigInt(this.chicken.price)
-            this.chicken.count++
-            this.chicken.price = Math.ceil(this.chicken.price * 1.2)
-            if (this.chicken.count == 5) {
-              this.chicken.allowImprovements = true
+        formHeadbutler: function () {
+          if (this.villagers.count >= this.headbutler.villagerPrice && this.coins >= this.headbutler.coins){
+            this.villagers.count -= this.headbutler.villagerprice
+            this.coins -= this.headbutler.coins
+            this.headbutler.count++
+          }
+        },
+        buySlaves: function () {
+          if (this.coins >= this.slaves.price) {
+            this.coins -= BigInt(this.slaves.price)
+            this.slaves.count++
             }
           }
         },
-        improveChicken: function () {
-          if (this.score >= this.chicken.improvmentprice) {
-            this.score -= BigInt(this.chicken.improvmentprice)
-            this.chicken.production.stepsRequired = Math.floor(this.chicken.production.stepsRequired * 0.95)
-            this.chicken.improvmentprice = Math.ceil(this.chicken.improvmentprice * 1.5)
+        improveSlaves: function () {
+          if (this.coins >= this.slaves.improvmentprice) {
+            this.coins -= BigInt(this.slaves.improvmentprice)
+            this.slaves.production.stepsRequired = Math.floor(this.slaves.production.stepsRequired * 0.95)
+            this.slaves.improvmentprice = Math.ceil(this.slaves.improvmentprice * 1.5)
           }
         }
       }
-    })
+    )
   </script>
 </body>
 
