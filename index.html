@@ -61,18 +61,6 @@
           </b-row>
         </b-layout>
       </b-card>
-      <b-card style="max-width: 20rem;" header="Headbutler">
-        <b-layout fluid>
-          <b-row>
-            <b-col>
-              {{ headbutler.count }} {{ headbutler.count === 1n ? "Headbutler" : "Headbutlers"}}
-            </b-col>
-            <b-col cols="4">
-              <b-button  @click="formHeadbutler" variant="primary" :disabled="villagers.count < headbutler.villagerPrice && coins < headbutler.coins" >{{ headbutler.villagerPrice }} V {{ headbutler.coins }} £</b-button>
-            </b-col>
-          </b-row>
-        </b-layout>
-      </b-card>
       <b-card style="max-width: 20rem;" header="Villagers">
         <b-layout fluid>
           <b-row>
@@ -80,7 +68,19 @@
               {{ villagers.count }} {{ villagers.count === 1n ? "Villager" : "Villagers"}}
             </b-col>
             <b-col cols="4">
-              <b-button  @click="buyButler" variant="primary" :disabled="slaves.count < butler.price" >{{ butler.price }} Sv</b-button>
+              <b-button  @click="buyVillagers" variant="primary" :disabled="butler.count < villagers.price" >{{ villagers.price }} £</b-button>
+            </b-col>
+          </b-row>
+        </b-layout>
+      </b-card>
+      <b-card style="max-width: 20rem;" header="Headbutler">
+        <b-layout fluid>
+          <b-row>
+            <b-col>
+              {{ headbutler.count }} {{ headbutler.count === 1n ? "Headbutler" : "Headbutlers"}}
+            </b-col>
+            <b-col cols="4">
+              <b-button  @click="buyHeadbutler" variant="primary" :disabled="coins < Headbutler.coins && villagers.count > 0" >{{ Headbutler.price }} £</b-button>
             </b-col>
           </b-row>
         </b-layout>
@@ -90,7 +90,6 @@
         {{ $data }}
       </pre>
   </div>
-
   <script>
     var app = new Vue({
       el: '#app',
@@ -110,8 +109,8 @@
           }
         },
         villagers:{
-          count: 100,
-          price: 5,
+          count: 0,
+          price: 2,
         },
         headbutler:{
           count: 0,
@@ -141,9 +140,6 @@
           if (this.slaves.production.stepsDone >= this.slaves.production.stepsRequired) {
             this.coins += BigInt(this.slaves.production.strength) 
             this.slaves.production.stepsDone = 0
-           
-          
-          
           }
           if (this.butler.production.stepsDone >= this.butler.production.stepsRequired){
             this.coins += BigInt(this.butler.production.strength)
@@ -162,11 +158,24 @@
             this.butler.count++
           }
         },
-        formHeadbutler: function () {
-          if (this.villagers.count >= this.headbutler.villagerPrice && this.coins >= this.headbutler.coins){
-            this.villagers.count -= this.headbutler.villagerprice
+        buyHeadbutler: function () {
+          if (this.coins >= this.headbutler.coins && this.villagers.count > 0 ){
             this.coins -= this.headbutler.coins
+            this.villagers.count -
             this.headbutler.count++
+          }
+ 
+// if{ 1. condition
+ // if{ 2. condition
+//do this
+//  }
+//}
+
+        },
+        buyVillagers: function () {
+          if (this.butler.count >= this.villagers.price){
+            this.butler.count -= this.villagers.price
+            this.villagers.count++
           }
         },
         buySlaves: function () {
@@ -176,6 +185,9 @@
             }
           }
         },
+        headbutlerPrice: function(){
+          this.headbutler.price = this.headbutler.coins + this.headbutler.villagerPrice
+        },
         improveSlaves: function () {
           if (this.coins >= this.slaves.improvmentprice) {
             this.coins -= BigInt(this.slaves.improvmentprice)
@@ -183,8 +195,7 @@
             this.slaves.improvmentprice = Math.ceil(this.slaves.improvmentprice * 1.5)
           }
         }
-      }
-    )
+      })
   </script>
 </body>
 
