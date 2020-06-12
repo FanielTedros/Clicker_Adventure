@@ -28,7 +28,7 @@
         <b-layout fluid>
           <b-row>
             <b-col>
-              {{ coins }} £ 
+              {{ coins }} £
             </b-col>
             <b-col cols="4">
               <b-button @click="addManual" variant="primary">+ {{ buttonValue }}</b-button>
@@ -44,7 +44,21 @@
               <div>{{ slaves.count }} {{ slaves.count === 1 ? "Slave" : "Slaves"}}</div>
             </b-col>
             <b-col cols="4">
-              <b-button @click="buySlaves" variant="primary" :disabled="coins < slaves.price">{{ slaves.price }} £</b-button>
+              <b-button @click="buySlaves" variant="primary" :disabled="coins < slaves.price"> {{ slaves.price }}£
+              </b-button>
+            </b-col>
+          </b-row>
+        </b-layout>
+      </b-card>
+      </b-card>
+      <b-card style="max-width: 20rem;" header="slaveschool">
+        <b-layout fluid>
+          <b-row>
+            <b-col>
+              <div>{{ slaveschool.count }} {{ slaveschool.count === 1 ? "Slaveschool" : "Slaveschools"}}</div>
+            </b-col>
+            <b-col cols="4">
+              <b-button @click="buySlaveschool" variant="primary" :disabled="coins < slaveschool.price"> {{ slaveschool.price }}Sv </b-button>
             </b-col>
           </b-row>
         </b-layout>
@@ -56,7 +70,7 @@
               {{ butler.count }} {{ butler.count === 1n ? "Butler" : "Butlers"}}
             </b-col>
             <b-col cols="4">
-              <b-button  @click="buyButler" variant="primary" :disabled="slaves.count < butler.price" >{{ butler.price }} Sv</b-button>
+              <b-button @click="buyButler" variant="primary" :disabled="slaveschool.count < butler.price"> {{ butler.price }} Svs</b-button>
             </b-col>
           </b-row>
         </b-layout>
@@ -68,7 +82,7 @@
               {{ villagers.count }} {{ villagers.count === 1n ? "Villager" : "Villagers"}}
             </b-col>
             <b-col cols="4">
-              <b-button  @click="buyVillagers" variant="primary" :disabled="butler.count < villagers.price" >{{ villagers.price }} £</b-button>
+              <b-button @click="buyVillagers" variant="primary" :disabled="butler.count < villagers.price"> {{ villagers.price }} Btr</b-button>
             </b-col>
           </b-row>
         </b-layout>
@@ -80,13 +94,12 @@
               {{ headbutler.count }} {{ headbutler.count === 1n ? "Headbutler" : "Headbutlers"}}
             </b-col>
             <b-col cols="4">
-              <b-button  @click="buyHeadbutler" variant="primary" :disabled="coins < Headbutler.coins && villagers.count > 0" >{{ Headbutler.price }} £</b-button>
+              <b-button @click="buyHeadbutler" variant="primary" :disabled="coins < headbutler.coins && villagers.count > 0"> {{ headbutler.coins }}£ {{ headbutler.villagerPrice }} V</b-button>
             </b-col>
           </b-row>
         </b-layout>
-      </b-card>
     </b-card-group>
-      <pre>
+    <pre>
         {{ $data }}
       </pre>
   </div>
@@ -96,36 +109,49 @@
       data: {
         message: 'Hello Vue!',
         coins: 0n,
-        increment: 0.00,
-        buttonValue: 1,
-        buttonValue2: 50,
-        butler:{
-          count: 0,
-          price: 5,
+        buttonValue: 1n,
+        buttonValue2: 50n,
+        butler: {
+          count: 0n,
+          price: 2n,
           production: {
-            strength: 20,
-            stepsRequired: 1000,
-            stepsDone: 0
+            strength: 50n,
+            stepsRequired: 1000n,
+            stepsDone: 0n
           }
         },
-        villagers:{
-          count: 0,
-          price: 2,
+        villagers: {
+          count: 0n,
+          price: 3n,
         },
-        headbutler:{
-          count: 0,
-          coins: 2000,
-          villagerPrice: 1,
+        headbutler: {
+          count: 0n,
+          coins: 200000n,
+          villagerPrice: 1n,
+          production: {
+            strength: 500n,
+            stepsRequired: 1000n,
+            stepsDone: 0n,
+          },
+        },
+        slaveschool: {
+          count: 0n,
+          price: 1n,
+          production: {
+            strength: 25n,
+            stepsRequired: 1000n,
+            stepsDone: 0n,
+          }
         },
         slaves: {
-          count: 0,
-          price: 100,
+          count: 0n,
+          price: 100n,
           production: {
-            strength: 1,
-            stepsRequired: 1000,
-            stepsDone: 0
+            strength: 1n,
+            stepsRequired: 1000n,
+            stepsDone: 0n,
           }
-        }
+        },
       },
       created: function () {
         BigInt.prototype.toJSON = function () { return this.toString() }
@@ -137,65 +163,67 @@
         update: function () {
           this.butler.production.stepsDone += this.butler.count * this.butler.production.strength
           this.slaves.production.stepsDone += this.slaves.count * this.slaves.production.strength
+          this.headbutler.production.stepsDone += this.headbutler.count * this.headbutler.production.strength
+          this.slaveschool.production.stepsDone += this.slaveschool.count * this.slaveschool.production.strength
           if (this.slaves.production.stepsDone >= this.slaves.production.stepsRequired) {
-            this.coins += BigInt(this.slaves.production.strength) 
-            this.slaves.production.stepsDone = 0
+            this.coins += this.slaves.production.strength
+            this.slaves.production.stepsDone = 0n
           }
-          if (this.butler.production.stepsDone >= this.butler.production.stepsRequired){
-            this.coins += BigInt(this.butler.production.strength)
-              this.butler.production.stepsDone = 0
+          if (this.butler.production.stepsDone >= this.butler.production.stepsRequired) {
+            this.coins += this.butler.production.strength
+            this.butler.production.stepsDone = 0n
+          }
+          if (this.headbutler.production.stepsDone >= this.headbutler.production.stepsRequired) {
+            this.coins += this.headbutler.production.strength
+            this.headbutler.production.stepsDone = 0n
+          }
+          if (this.slaveschool.production.stepsDone >= this.slaveschool.production.stepsRequired) {
+            this.coins += this.slaveschool.production.strength
+            this.slaveschool.production.stepsDone = 0n
           }
         },
         addManual: function () {
-          this.coins += BigInt(this.buttonValue)
+          this.coins += this.buttonValue
         },
         addManual2: function () {
-          this.coins += BigInt(this.buttonValue2)
+          this.coins += this.buttonValue2
         },
         buyButler: function () {
-          if (this.slaves.count >= this.butler.price){
-            this.slaves.count -= this.butler.price
+          if (this.slaveschool.count >= this.butler.price) {
+            this.slaveschool.count -= this.butler.price
             this.butler.count++
           }
         },
         buyHeadbutler: function () {
-          if (this.coins >= this.headbutler.coins && this.villagers.count > 0 ){
+          if (this.coins >= this.headbutler.coins && this.villagers.count > 0n) {
             this.coins -= this.headbutler.coins
-            this.villagers.count -
+            this.villagers.count--
             this.headbutler.count++
           }
- 
-// if{ 1. condition
- // if{ 2. condition
-//do this
-//  }
-//}
-
         },
         buyVillagers: function () {
-          if (this.butler.count >= this.villagers.price){
+          if (this.butler.count >= this.villagers.price) {
             this.butler.count -= this.villagers.price
             this.villagers.count++
           }
         },
+        buySlaveschool: function () {
+          if (this.slaves.count >= this.slaveschool.price) {
+            this.slaves.count -= this.slaveschool.price
+            this.slaveschool.count++
+          }
+        },
         buySlaves: function () {
           if (this.coins >= this.slaves.price) {
-            this.coins -= BigInt(this.slaves.price)
+            this.coins -= this.slaves.price
             this.slaves.count++
-            }
           }
         },
-        headbutlerPrice: function(){
+        headbutlerPrice: function () {
           this.headbutler.price = this.headbutler.coins + this.headbutler.villagerPrice
         },
-        improveSlaves: function () {
-          if (this.coins >= this.slaves.improvmentprice) {
-            this.coins -= BigInt(this.slaves.improvmentprice)
-            this.slaves.production.stepsRequired = Math.floor(this.slaves.production.stepsRequired * 0.95)
-            this.slaves.improvmentprice = Math.ceil(this.slaves.improvmentprice * 1.5)
-          }
-        }
-      })
+      }
+    })
   </script>
 </body>
 
